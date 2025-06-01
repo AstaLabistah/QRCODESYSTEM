@@ -1,0 +1,42 @@
+<?php  
+session_start();
+
+// GeoNames API for fetching time
+$timezone = 'Asia/Manila';
+$api_url = "http://api.geonames.org/timezoneJSON?lat=14.5995&lng=120.9842&username=francis09";  // Replace with your GeoNames username
+
+// Initialize cURL
+$ch = curl_init();
+curl_setopt($ch, CURLOPT_URL, $api_url);
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+// Execute cURL
+$response = curl_exec($ch);
+
+// Check for cURL error
+if ($response === false) {
+    echo "cURL Error: " . curl_error($ch);
+    exit;
+}
+
+// Decode JSON response
+$data = json_decode($response, true);
+
+// Check if time data is present in the response
+if ($data && isset($data['time'])) {
+    $philippine_time = $data['time']; // Format: 2025-05-29T12:34:56.789123+08:00
+    $time = new DateTime($philippine_time);  // We now have the correct Philippine Time
+} else {
+    echo "Error fetching time from GeoNames API.";
+    exit;
+}
+
+// Close cURL session
+curl_close($ch);
+
+// Check session and continue as normal
+if (!isset($_SESSION['username']) || !isset($_SESSION['user_db'])) {
+    header("Location: login.php");
+    exit();
+}
+?>
